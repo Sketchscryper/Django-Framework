@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Бан пользователя{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>🔨 Бан пользователя</h2>
+    
+    <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <p><strong>👤 Пользователь:</strong> {{ user.username }}</p>
+        <p><strong>📧 Email:</strong> {{ user.email|default:"не указан" }}</p>
+        <p><strong>📅 Зарегистрирован:</strong> {{ user.date_joined|date:"d.m.Y H:i" }}</p>
+        
+        {% if user.active_ban %}
+            <div style="background-color: #f8d7da; border: 1px solid #dc3545; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                <p style="color: #dc3545; margin: 0;">
+                    ⚠️ Пользователь уже забанен!
+                    {% if user.active_ban.expires_at %}
+                        Бан истекает: {{ user.active_ban.expires_at|date:"d.m.Y H:i" }}
+                    {% else %}
+                        Бан бессрочный
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">
+                {{ form.duration.label }}
+            </label>
+            {{ form.duration }}
+            <small style="color: #666;">Выберите срок блокировки пользователя</small>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">
+                {{ form.reason.label }}
+            </label>
+            {{ form.reason }}
+            <small style="color: #666;">Укажите причину бана (необязательно)</small>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-warning" onclick="return confirm('Забанить пользователя {{ user.username }}?')">
+                🔨 Забанить пользователя
+            </button>
+            <a href="{% url 'user_list' %}" class="btn">❌ Отмена</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    select, textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+</style>
+{% endblock %}

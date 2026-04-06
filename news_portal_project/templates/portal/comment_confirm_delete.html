@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Удаление комментария{% endblock %}
+
+{% block content %}
+<div class="card" style="border-color: #dc3545;">
+    <h2 style="color: #dc3545;">🗑️ Удаление комментария</h2>
+    
+    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <p><strong>📝 Статья:</strong> <a href="{% url 'article_detail' comment.article.id %}">{{ comment.article.title }}</a></p>
+        <p><strong>👤 Автор:</strong> {{ comment.author.username }}</p>
+        <p><strong>📅 Дата:</strong> {{ comment.created_at|date:"d.m.Y H:i" }}</p>
+        <p><strong>💬 Текст комментария:</strong></p>
+        <div style="background-color: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd;">
+            {{ comment.text|linebreaks }}
+        </div>
+    </div>
+    
+    <p style="font-size: 16px; margin: 20px 0;">
+        Вы уверены, что хотите удалить этот комментарий?
+    </p>
+    
+    <form method="POST" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Удалить комментарий?')">
+            🗑️ Да, удалить комментарий
+        </button>
+        <a href="{% url 'article_detail' comment.article.id %}" class="btn">↩️ Нет, вернуться к статье</a>
+    </form>
+</div>
+{% endblock %}

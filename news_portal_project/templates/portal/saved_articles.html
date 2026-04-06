@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Сохраненные статьи{% endblock %}
+
+{% block content %}
+<h2>🔖 Мои сохраненные статьи</h2>
+
+{% if saved_articles %}
+    {% for saved in saved_articles %}
+        <div class="card">
+            <h3><a href="{% url 'article_detail' saved.article.id %}">{{ saved.article.title }}</a></h3>
+            <p>
+                👤 {{ saved.article.author.username }} | 
+                📅 {{ saved.article.created_at|date:"d.m.Y" }} |
+                Сохранено: {{ saved.saved_at|date:"d.m.Y H:i" }}
+            </p>
+            <p>{{ saved.article.content|truncatewords:30 }}</p>
+            <a href="{% url 'article_detail' saved.article.id %}" class="btn">Читать</a>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <p>У вас пока нет сохраненных статей.</p>
+        <p>Чтобы сохранить статью, нажмите кнопку "🔖 Сохранить" на странице статьи.</p>
+        <a href="/" class="btn">📰 Перейти к статьям</a>
+    </div>
+{% endif %}
+{% endblock %}

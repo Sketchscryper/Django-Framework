@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование статьи{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>✏️ Редактирование статьи</h2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Заголовок</label>
+            {{ form.title }}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Тип</label>
+            {{ form.article_type }}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Содержание</label>
+            {{ form.content }}
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-success">💾 Сохранить изменения</button>
+            <a href="{% url 'article_detail' article.id %}" class="btn">❌ Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

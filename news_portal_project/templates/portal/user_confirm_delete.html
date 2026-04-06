@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Удаление пользователя{% endblock %}
+
+{% block content %}
+<div class="card" style="border-color: #dc3545; background-color: #fff3f3;">
+    <h2 style="color: #dc3545;">⚠️ Подтверждение удаления</h2>
+    
+    <p style="font-size: 18px; margin: 20px 0;">
+        Вы действительно хотите удалить пользователя 
+        <strong style="color: #dc3545;">{{ user_to_delete.username }}</strong>?
+    </p>
+    
+    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <p><strong>📧 Email:</strong> {{ user_to_delete.email|default:"не указан" }}</p>
+        <p><strong>📅 Дата регистрации:</strong> {{ user_to_delete.date_joined|date:"d.m.Y H:i" }}</p>
+        <p><strong>📊 Количество статей:</strong> {{ user_to_delete.articles.count }}</p>
+        <p><strong>💬 Количество комментариев:</strong> {{ user_to_delete.comments.count }}</p>
+    </div>
+    
+    <form method="POST" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Последнее предупреждение! Удалить пользователя навсегда?')">
+            🗑️ Да, удалить навсегда
+        </button>
+        <a href="{% url 'user_list' %}" class="btn">↩️ Отмена</a>
+    </form>
+</div>
+{% endblock %}

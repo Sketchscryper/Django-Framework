@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+    <h2>Новости и статьи</h2>
+    
+    <div class="filters">
+        <a href="/?type=all" class="{% if current_type == 'all' %}active{% endif %}">Все</a>
+        <a href="/?type=news" class="{% if current_type == 'news' %}active{% endif %}">Новости</a>
+        <a href="/?type=article" class="{% if current_type == 'article' %}active{% endif %}">Статьи</a>
+    </div>
+
+    {% for article in articles %}
+        <div class="card">
+            <h3><a href="{% url 'article_detail' article.id %}">{{ article.title }}</a></h3>
+            <p>
+                👤 {{ article.author.username }} | 
+                📅 {{ article.created_at|date:"d.m.Y H:i" }} |
+                {% if article.article_type == 'news' %}📰 Новость{% else %}📝 Статья{% endif %} |
+                👁️ {{ article.views_count }} |
+                💬 {{ article.comments.count }} |
+                🔖 {{ article.saves_count }}
+            </p>
+            <p>{{ article.content|truncatewords:50 }}</p>
+            <a href="{% url 'article_detail' article.id %}" class="btn">Читать далее</a>
+        </div>
+    {% empty %}
+        <p>Нет статей для отображения.</p>
+    {% endfor %}
+{% endblock %}

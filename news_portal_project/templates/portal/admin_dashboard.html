@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель администратора{% endblock %}
+
+{% block content %}
+    <h2>Панель управления</h2>
+    
+    <div class="stats-grid">
+        <div class="card">
+            <h3>📰 Статьи</h3>
+            <p style="font-size: 32px; font-weight: bold;">{{ total_articles }}</p>
+        </div>
+        <div class="card">
+            <h3>👥 Пользователи</h3>
+            <p style="font-size: 32px; font-weight: bold;">{{ total_users }}</p>
+        </div>
+        <div class="card">
+            <h3>💬 Комментарии</h3>
+            <p style="font-size: 32px; font-weight: bold;">{{ total_comments }}</p>
+        </div>
+        <div class="card">
+            <h3>🚫 Забаненные</h3>
+            <p style="font-size: 32px; font-weight: bold;">{{ banned_users }}</p>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h3>📝 Последние статьи</h3>
+            {% for article in recent_articles %}
+                <p><a href="{% url 'article_detail' article.id %}">{{ article.title }}</a><br>
+                <small>{{ article.created_at|date:"d.m.Y" }}</small></p>
+            {% empty %}
+                <p>Нет статей</p>
+            {% endfor %}
+        </div>
+        
+        <div class="card">
+            <h3>👤 Новые пользователи</h3>
+            {% for user in recent_users %}
+                <p>{{ user.username }}<br><small>{{ user.date_joined|date:"d.m.Y" }}</small></p>
+            {% empty %}
+                <p>Нет пользователей</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Быстрые действия</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{% url 'article_create' %}" class="btn btn-success">➕ Создать статью</a>
+            <a href="{% url 'user_add' %}" class="btn btn-success">➕ Добавить пользователя</a>
+            <a href="{% url 'statistics' %}" class="btn">📊 Статистика</a>
+            <a href="{% url 'site_settings' %}" class="btn">⚙️ Настройки</a>
+            <a href="{% url 'user_list' %}" class="btn">👥 Пользователи</a>
+        </div>
+    </div>
+{% endblock %}

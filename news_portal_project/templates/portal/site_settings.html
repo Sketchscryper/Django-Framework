@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Настройки сайта{% endblock %}
+
+{% block extra_css %}
+<style>
+    .preview-box {
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+    }
+    .setting-row {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+    .color-preview {
+        display: inline-block;
+        width: 50px;
+        height: 30px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        vertical-align: middle;
+        margin-left: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2>⚙️ Настройки оформления сайта</h2>
+
+<div class="grid-2">
+    <!-- Форма настроек -->
+    <div class="card">
+        <h3>Настройки внешнего вида</h3>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="setting-row">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+                    🎨 {{ form.background_color.label }}
+                </label>
+                <div>
+                    {{ form.background_color }}
+                    <span class="color-preview" id="bgPreview" style="background-color: {{ form.background_color.value|default:'#ffffff' }};"></span>
+                </div>
+                <small style="color: #666;">Цвет фона всего сайта</small>
+            </div>
+            
+            <div class="setting-row">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+                    🖌️ {{ form.text_color.label }}
+                </label>
+                <div>
+                    {{ form.text_color }}
+                    <span class="color-preview" id="textPreview" style="background-color: {{ form.text_color.value|default:'#000000' }};"></span>
+                </div>
+                <small style="color: #666;">Цвет основного текста</small>
+            </div>
+            
+            <div class="setting-row">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+                    📏 {{ form.font_size.label }}
+                </label>
+                {{ form.font_size }}
+                <small style="color: #666; display: block; margin-top: 5px;">Размер шрифта для всего сайта</small>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn btn-success">💾 Сохранить настройки</button>
+                <a href="{% url 'admin_dashboard' %}" class="btn">↩️ Назад в панель</a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Предпросмотр -->
+    <div class="card">
+        <h3>👁️ Предпросмотр</h3>
+        <div id="preview" class="preview-box" style="background-color: {{ form.background_color.value|default:'#ffffff' }}; color: {{ form.text_color.value|default:'#000000' }}; font-size: {{ form.font_size.value|default:'16px' }};">
+            <h4>Пример текста</h4>
+            <p>Это пример того, как будет выглядеть ваш сайт с выбранными настройками.</p>
+            <p style="font-weight: bold;">Жирный текст</p>
+            <p><em>Курсивный текст</em></p>
+            <div style="background-color: rgba(0,0,0,0.1); padding: 10px; border-radius: 5px;">
+                <strong>📰 Пример карточки новости:</strong><br>
+                Здесь будет отображаться содержимое статей, комментариев и других элементов.
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background-color: #e9ecef; border-radius: 8px;">
+            <h4>ℹ️ Информация</h4>
+            <p>Настройки применяются сразу ко всему сайту. Вы можете менять цвета и размер шрифта в реальном времени.</p>
+            <ul style="margin-left: 20px;">
+                <li>Цвет фона влияет на все страницы</li>
+                <li>Цвет текста должен быть контрастным для удобства чтения</li>
+                <li>Размер шрифта можно настроить под свои предпочтения</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Живой предпросмотр
+    const bgColorInput = document.querySelector('#id_background_color');
+    const textColorInput = document.querySelector('#id_text_color');
+    const fontSizeSelect = document.querySelector('#id_font_size');
+    const preview = document.querySelector('#preview');
+    const bgPreview = document.querySelector('#bgPreview');
+    const textPreview = document.querySelector('#textPreview');
+    
+    function updatePreview() {
+        const bgColor = bgColorInput.value;
+        const textColor = textColorInput.value;
+        const fontSize = fontSizeSelect.value;
+        
+        preview.style.backgroundColor = bgColor;
+        preview.style.color = textColor;
+        preview.style.fontSize = fontSize;
+        
+        if (bgPreview) bgPreview.style.backgroundColor = bgColor;
+        if (textPreview) textPreview.style.backgroundColor = textColor;
+    }
+    
+    if (bgColorInput) bgColorInput.addEventListener('input', updatePreview);
+    if (textColorInput) textColorInput.addEventListener('input', updatePreview);
+    if (fontSizeSelect) fontSizeSelect.addEventListener('change', updatePreview);
+</script>
+{% endblock %}

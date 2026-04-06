@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Пользователи{% endblock %}
+
+{% block content %}
+    <h2>Управление пользователями</h2>
+
+    <form method="GET" style="margin-bottom: 20px;">
+        <input type="text" name="search" value="{{ search }}" placeholder="Поиск..." style="padding: 8px; width: 300px;">
+        <button type="submit" class="btn">Найти</button>
+        <a href="{% url 'user_add' %}" class="btn btn-success">➕ Добавить</a>
+        <a href="{% url 'admin_dashboard' %}" class="btn">⬅️ Назад</a>
+    </form>
+
+    <table>
+        <thead>
+            <tr><th>ID</th><th>Имя</th><th>Email</th><th>Дата</th><th>Статус</th><th>Действия</th></tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+                <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.date_joined|date:"d.m.Y" }}</td>
+                    <td>{% if u.active_ban %}🔴 Забанен{% else %}🟢 Активен{% endif %}</td>
+                    <td>
+                        {% if not u.active_ban %}
+                            <a href="{% url 'user_ban' u.id %}" class="btn btn-warning">🔨 Бан</a>
+                        {% else %}
+                            <a href="{% url 'user_unban' u.id %}" class="btn btn-success">🔓 Разбан</a>
+                        {% endif %}
+                        {% if u != request.user %}
+                            <a href="{% url 'user_delete' u.id %}" class="btn btn-danger" onclick="return confirm('Удалить?')">🗑️</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">Нет пользователей</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
