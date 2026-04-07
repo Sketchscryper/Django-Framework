@@ -1,0 +1,37 @@
+<!-- library/templates/library/author_detail.html -->
+{% extends 'library/base.html' %}
+
+{% block title %}{{ author.first_name }} {{ author.last_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ author.first_name }} {{ author.last_name }}</h2>
+    </div>
+    <div class="card-body">
+        {% if author.birth_date %}
+            <p><strong>📅 Дата рождения:</strong> {{ author.birth_date }}</p>
+        {% endif %}
+
+        <h4>📖 Биография:</h4>
+        <p>{{ author.bio|linebreaks }}</p>
+
+        <h4>📚 Книги автора:</h4>
+        <ul>
+            {% for book in author.books.all %}
+                <li><a href="{% url 'library:book_detail' book.id %}">{{ book.title }}</a> ({{ book.publication_year }})</li>
+            {% empty %}
+                <li>У этого автора пока нет книг в библиотеке.</li>
+            {% endfor %}
+        </ul>
+
+        <div class="mt-3">
+            <a href="{% url 'library:author_list' %}" class="btn btn-secondary">Назад к списку</a>
+            {% if user.is_superuser or user.groups.all.0.name == 'Администратор' %}
+                <a href="{% url 'library:author_edit' author.id %}" class="btn btn-warning">Редактировать</a>
+                <a href="{% url 'library:author_delete' author.id %}" class="btn btn-danger">Удалить</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

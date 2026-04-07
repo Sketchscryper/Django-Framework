@@ -1,0 +1,51 @@
+<!-- library/templates/library/author_list.html -->
+{% extends 'library/base.html' %}
+
+{% block title %}Список авторов{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>✍️ Список авторов</h1>
+    {% if user.is_superuser or user.groups.all.0.name == 'Администратор' %}
+        <a href="{% url 'library:author_create' %}" class="btn btn-primary">➕ Добавить автора</a>
+    {% endif %}
+</div>
+
+<div class="row">
+    {% for author in page_obj %}
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ author.first_name }} {{ author.last_name }}</h5>
+                {% if author.birth_date %}
+                    <p class="card-text"><strong>Дата рождения:</strong> {{ author.birth_date }}</p>
+                {% endif %}
+                <p class="card-text">{{ author.bio|truncatewords:30 }}</p>
+                <a href="{% url 'library:author_detail' author.id %}" class="btn btn-sm btn-info">Подробнее</a>
+                {% if user.is_superuser or user.groups.all.0.name == 'Администратор' %}
+                    <a href="{% url 'library:author_edit' author.id %}" class="btn btn-sm btn-warning">✏️</a>
+                    <a href="{% url 'library:author_delete' author.id %}" class="btn btn-sm btn-danger">🗑️</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Пагинация -->
+<nav>
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">Первая</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a></li>
+        {% endif %}
+
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Следующая</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}

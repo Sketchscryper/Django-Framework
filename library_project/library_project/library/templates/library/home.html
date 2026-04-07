@@ -1,0 +1,68 @@
+<!-- library/templates/library/home.html -->
+{% extends 'library/base.html' %}
+
+{% block title %}Главная - Библиотека{% endblock %}
+
+{% block content %}
+<div class="jumbotron bg-light p-5 rounded-lg m-3">
+    <h1 class="display-4">Добро пожаловать в библиотеку!</h1>
+    <p class="lead">Крупнейшее собрание книг в нашем городе.</p>
+    <hr class="my-4">
+    <p>У нас вы найдете тысячи книг на любой вкус.</p>
+
+    {% if user.is_authenticated %}
+        <div class="alert alert-info">
+            <strong>Ваша роль: {{ user_role }}</strong>
+            {% if user_role == "Библиотекарь" %}
+                <p>Вы можете просматривать информацию о книгах, авторах и читателях.</p>
+            {% elif user_role == "Администратор" %}
+                <p>Вы имеете полный доступ: просмотр, добавление, редактирование и удаление информации.</p>
+            {% elif user_role == "Читатель" %}
+                <p>Вы можете просматривать каталог книг и информацию об авторах.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">📚 Книги</h5>
+                <h2 class="display-4">{{ books_count }}</h2>
+                <p class="card-text">книг в библиотеке</p>
+                <a href="{% url 'library:book_list' %}" class="btn btn-primary">Просмотреть</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">✍️ Авторы</h5>
+                <h2 class="display-4">{{ authors_count }}</h2>
+                <p class="card-text">авторов</p>
+                <a href="{% url 'library:author_list' %}" class="btn btn-primary">Просмотреть</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">👥 Читатели</h5>
+                <h2 class="display-4">{{ readers_count }}</h2>
+                <p class="card-text">зарегистрированных читателей</p>
+                <a href="{% url 'library:reader_list' %}" class="btn btn-primary">Просмотреть</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not user.is_authenticated %}
+<div class="alert alert-info mt-5 text-center">
+    <h4>Присоединяйтесь к нам!</h4>
+    <p><a href="{% url 'library:register' %}" class="btn btn-success mt-2">Зарегистрироваться</a></p>
+</div>
+{% endif %}
+{% endblock %}

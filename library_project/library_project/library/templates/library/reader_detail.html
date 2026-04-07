@@ -1,0 +1,163 @@
+<!-- library/templates/library/reader_detail.html -->
+{% extends 'library/base.html' %}
+
+{% block title %}Читатель: {{ reader.user.username }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h2>👤 {{ reader.user.get_full_name|default:reader.user.username }}</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Личная информация</h4>
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="width: 150px;">Логин:</th>
+                        <td>{{ reader.user.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ reader.user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Имя:</th>
+                        <td>{{ reader.user.first_name|default:"Не указано" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Фамилия:</th>
+                        <td>{{ reader.user.last_name|default:"Не указано" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Телефон:</th>
+                        <td>{{ reader.phone|default:"Не указан" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Адрес:</th>
+                        <td>{{ reader.address|default:"Не указан" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Дата регистрации:</th>
+                        <td>{{ reader.date_joined|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Активен:</th>
+                        <td>
+                            {% if reader.user.is_active %}
+                                <span class="badge bg-success">Да</span>
+                            {% else %}
+                                <span class="badge bg-danger">Нет</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Книги на руках</h4>
+                {# ИСПРАВЛЕННАЯ ЧАСТЬ - используем метод all и фильтруем в цикле #}
+                {% with all_records=reader.borrowrecord_set.all %}
+                    {% with active_records=all_records|length %}
+                        {% if active_records > 0 %}
+                            <ul class="list-group">
+                                {% for record in all_records %}
+                                    {% if not record.is_returned %}
+                                        <li class="list-group-item">
+                                            <strong>{{ record.book.title }}</strong><br>
+                                            <small>Выдана: {{ record.borrow_date|date:"d.m.Y" }}</small><br>
+                                            <small>Должна быть возвращена: {{ record.due_date|date:"d.m.Y" }}</small>
+                                            {% if record.due_date < now %}
+                                                <span class="badge bg-danger">Просрочена</span>
+                                            {% endif %}
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">Нет книг на руках</p>
+                        {% endif %}
+                    {% endwith %}
+                {% endwith %}
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="{% url 'library:reader_list' %}" class="btn btn-secondary">
+                ← Назад к списку
+            </a>
+            {% if user.is_superuser or user.groups.all.0.name == 'Администратор' %}
+                <a href="{% url 'library:reader_edit' reader.id %}" class="btn btn-warning">
+                    ✏️ Редактировать
+                </a>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    🗑️ Удалить
+                </button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#resetPasswordModal">
+                    🔑 Сбросить пароль
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для сброса пароля -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Сброс пароля</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'library:reset_password' reader.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Вы действительно хотите сбросить пароль для пользователя <strong>{{ reader.user.username }}</strong>?</p>
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">Новый пароль</label>
+                        <input type="text" class="form-control" id="new_password" name="new_password">
+                        <small class="text-muted">Оставьте пустым для генерации автоматического пароля</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сбросить пароль</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить читателя <strong>{{ reader.user.get_full_name|default:reader.user.username }}</strong>?</p>
+                <p class="text-danger">Внимание! Все данные о выданных книгах этого читателя также будут удалены!</p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" action="{% url 'library:reader_delete' reader.id %}">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-danger">Да, удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Генерация случайного пароля при клике на поле
+    document.getElementById('new_password')?.addEventListener('click', function() {
+        if (!this.value) {
+            const password = Math.random().toString(36).slice(-8);
+            this.value = password;
+        }
+    });
+</script>
+{% endblock %}
